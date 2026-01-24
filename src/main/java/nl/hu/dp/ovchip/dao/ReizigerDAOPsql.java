@@ -1,6 +1,5 @@
-package nl.hu.dp.ovchip.daopsql;
+package nl.hu.dp.ovchip.dao;
 
-import nl.hu.dp.ovchip.dao.ReizigerDAO;
 import nl.hu.dp.ovchip.domain.Reiziger;
 
 import java.sql.Connection;
