@@ -1,7 +1,8 @@
 package nl.hu.dp.ovchip;
 
 import nl.hu.dp.ovchip.dao.ReizigerDAO;
-import nl.hu.dp.ovchip.daopsql.ReizigerDAOPsql;
+import nl.hu.dp.ovchip.dao.ReizigerDAOHibernate;
+import nl.hu.dp.ovchip.dao.ReizigerDAOPsql;
 import nl.hu.dp.ovchip.domain.Reiziger;
 import nl.hu.dp.ovchip.util.DatabaseConnection;
 
@@ -17,6 +18,7 @@ public class Main {
             Statement myStmt = myConn.createStatement();
             ResultSet myRs = myStmt.executeQuery("SELECT * FROM reiziger");
 
+            //Test P1
             System.out.println("Alle reizigers:");
             int nummer = 0;
 
@@ -33,9 +35,15 @@ public class Main {
 
             }
 
+            //Test P2
             System.out.println("\n\nTest P2:");
             ReizigerDAO dao = new ReizigerDAOPsql(myConn);
             testReizigerDAO(dao);
+
+            //Test P2H Hibernate
+            System.out.println("\n\nTest P2H:");
+            ReizigerDAO hibernateDao = new ReizigerDAOHibernate();
+            testReizigerDAO(hibernateDao);
 
         } catch (SQLException e){
             e.printStackTrace();
