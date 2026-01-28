@@ -1,5 +1,6 @@
 package nl.hu.dp.ovchip.dao;
 
+import nl.hu.dp.ovchip.domain.Adres;
 import nl.hu.dp.ovchip.domain.Reiziger;
 
 import java.sql.Connection;
@@ -12,22 +13,30 @@ import java.util.List;
 
 public class ReizigerDAOPsql implements ReizigerDAO {
     private Connection conn;
+    private AdresDAO adresDAO;
 
-    public ReizigerDAOPsql(Connection conn) throws SQLException {
+    public ReizigerDAOPsql(Connection conn, AdresDAO adresDAO) throws SQLException {
         this.conn = conn;
+        this.adresDAO = adresDAO;
     }
 
     @Override
-    public Boolean save(Reiziger r) {
+    public boolean save(Reiziger r) {
         String sql = "INSERT INTO reiziger (reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, r.getId());
+            pst.setInt(1, r.getReiziger_id());
             pst.setString(2, r.getVoorletters());
             pst.setString(3, r.getTussenvoegsel());
             pst.setString(4, r.getAchternaam());
             pst.setDate(5, java.sql.Date.valueOf(r.getGeboortedatum()));
 
-            return pst.executeUpdate() > 0;
+            boolean reizigerSaved = pst.executeUpdate() > 0;
+
+            if (reizigerSaved && r.getAdres() != null) {
+                adresDAO.save(r.getAdres());
+            }
+
+            return reizigerSaved;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -35,16 +44,28 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     }
 
     @Override
-    public Boolean update(Reiziger r) {
+    public boolean update(Reiziger r) {
         String sql = "UPDATE reiziger SET voorletters = ?, tussenvoegsel = ?, achternaam = ?, geboortedatum = ? WHERE reiziger_id = ?";
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(5, r.getId());
+            pst.setInt(5, r.getReiziger_id());
             pst.setString(1, r.getVoorletters());
             pst.setString(2, r.getTussenvoegsel());
             pst.setString(3, r.getAchternaam());
             pst.setDate(4, java.sql.Date.valueOf(r.getGeboortedatum()));
 
-            return pst.executeUpdate() > 0;
+            boolean updatedReiziger = pst.executeUpdate() > 0;
+
+            if (r.getAdres() != null) {
+                adresDAO.update(r.getAdres());
+            } else {
+                Adres bestaand = adresDAO.findByReiziger(r);
+                if (bestaand != null) {
+                    adresDAO.delete(bestaand);
+                }
+            }
+
+            return updatedReiziger;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -52,10 +73,15 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     }
 
     @Override
-    public Boolean delete(Reiziger r) {
+    public boolean delete(Reiziger r) {
+        Adres adres = adresDAO.findByReiziger(r);
+        if (adres != null) {
+            adresDAO.delete(adres);
+        }
+
         String sql = "DELETE FROM reiziger WHERE reiziger_id = ?";
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, r.getId());
+            pst.setInt(1, r.getReiziger_id());
 
             return pst.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -71,13 +97,17 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             pst.setInt(1, id);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return new Reiziger(
+                Reiziger r = new Reiziger(
                         rs.getInt("reiziger_id"),
                         rs.getString("voorletters"),
                         rs.getString("tussenvoegsel"),
                         rs.getString("achternaam"),
                         rs.getDate("geboortedatum").toLocalDate()
                 );
+
+                Adres adres = adresDAO.findByReiziger(r);
+                r.setAdres(adres);
+                return r;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -93,13 +123,17 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             pst.setDate(1, java.sql.Date.valueOf(geboortedatum));
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
-                reizigers.add(new Reiziger(
+                Reiziger r = new Reiziger(
                         rs.getInt("reiziger_id"),
                         rs.getString("voorletters"),
                         rs.getString("tussenvoegsel"),
                         rs.getString("achternaam"),
                         rs.getDate("geboortedatum").toLocalDate()
-                ));
+                );
+                Adres adres = adresDAO.findByReiziger(r);
+                r.setAdres(adres);
+
+                reizigers.add(r);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -114,13 +148,18 @@ public class ReizigerDAOPsql implements ReizigerDAO {
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
-                reizigers.add(new Reiziger(
+                Reiziger r = new Reiziger(
                         rs.getInt("reiziger_id"),
                         rs.getString("voorletters"),
                         rs.getString("tussenvoegsel"),
                         rs.getString("achternaam"),
                         rs.getDate("geboortedatum").toLocalDate()
-                ));
+                );
+
+                Adres adres = adresDAO.findByReiziger(r);
+                r.setAdres(adres);
+
+                reizigers.add(r);
             }
         } catch (SQLException e) {
             e.printStackTrace();
