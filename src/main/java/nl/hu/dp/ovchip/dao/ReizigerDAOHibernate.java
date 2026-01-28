@@ -11,7 +11,7 @@ import java.util.List;
 public class ReizigerDAOHibernate implements ReizigerDAO {
 
     @Override
-    public Boolean save(Reiziger r) {
+    public boolean save(Reiziger r) {
         Transaction tx = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
@@ -26,7 +26,7 @@ public class ReizigerDAOHibernate implements ReizigerDAO {
     }
 
     @Override
-    public Boolean update(Reiziger reiziger) {
+    public boolean update(Reiziger reiziger) {
         Transaction tx = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
@@ -41,7 +41,7 @@ public class ReizigerDAOHibernate implements ReizigerDAO {
     }
 
     @Override
-    public Boolean delete(Reiziger reiziger) {
+    public boolean delete(Reiziger reiziger) {
         Transaction tx = null;
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();

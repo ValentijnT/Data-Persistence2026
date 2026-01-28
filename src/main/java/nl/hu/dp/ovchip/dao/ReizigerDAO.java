@@ -6,10 +6,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ReizigerDAO {
-    public Boolean save(Reiziger reiziger);
-    public Boolean update(Reiziger reiziger);
-    public Boolean delete(Reiziger reiziger);
-    public Reiziger findById(int id);
-    public List<Reiziger> findByGbdatum(LocalDate date);
-    public List<Reiziger> findAll();
+    boolean save(Reiziger reiziger);
+    boolean update(Reiziger reiziger);
+    boolean delete(Reiziger reiziger);
+    Reiziger findById(int id);
+    List<Reiziger> findByGbdatum(LocalDate date);
+    List<Reiziger> findAll();
 }
