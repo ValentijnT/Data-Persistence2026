@@ -23,6 +23,7 @@ public class Reiziger {
     @Column(name = "geboortedatum")
     private LocalDate geboortedatum;
 
+    @OneToOne(mappedBy = "reiziger", cascade = CascadeType.ALL)
     private Adres adres;
     
     public Reiziger() {}

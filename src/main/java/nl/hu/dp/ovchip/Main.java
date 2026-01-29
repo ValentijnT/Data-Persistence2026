@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         AdresDAOHibernate adao = new AdresDAOHibernate();
         ReizigerDAOHibernate rdao = new ReizigerDAOHibernate();
 
@@ -18,6 +18,18 @@ public class Main {
     }
 
     private static void testP3H(ReizigerDAO rdao, AdresDAO adao) throws SQLException {
+        System.out.println("P3H: \n");
 
+        System.out.println("Test save adres + Reiziger: \n");
+        Reiziger valentijn = new Reiziger(67, "V", null, "Tollenaar", LocalDate.of(2003, 9, 26));
+        Adres adres = new Adres(67, "3704AZ", "8", "heidelberglaan", "Utrecht", valentijn);
+
+        adres.setReiziger(valentijn);
+        valentijn.setAdres(adres);
+
+        rdao.save(valentijn);
+
+        System.out.println("Nieuwe reiziger in database: ");
+        System.out.println(rdao.findById(67));
     }
 }

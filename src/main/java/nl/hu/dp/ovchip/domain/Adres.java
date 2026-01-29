@@ -1,11 +1,29 @@
 package nl.hu.dp.ovchip.domain;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "adres")
 public class Adres {
+
+    @Id
+    @Column(name = "adres_id")
     private int adres_id;
+
+    @Column(name = "postcode")
     private String postcode;
+
+    @Column(name = "huisnummer")
     private String huisnummer;
+
+    @Column(name = "straat")
     private String straat;
+
+    @Column(name = "woonplaats")
     private String woonplaats;
+
+    @OneToOne
+    @JoinColumn(name = "reiziger_id", nullable = false, unique = true)
     private Reiziger reiziger;
 
     public Adres() {}
