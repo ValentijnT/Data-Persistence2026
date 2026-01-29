@@ -5,6 +5,7 @@ import nl.hu.dp.ovchip.dao.ReizigerDAOHibernate;
 import nl.hu.dp.ovchip.dao.ReizigerDAOPsql;
 import nl.hu.dp.ovchip.domain.Reiziger;
 import nl.hu.dp.ovchip.util.DatabaseConnection;
+import nl.hu.dp.ovchip.util.HibernateUtil;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -13,41 +14,14 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
 
-        try(Connection myConn = DatabaseConnection.getConnection()){
+        HibernateUtil.getSessionFactory();
 
-            Statement myStmt = myConn.createStatement();
-            ResultSet myRs = myStmt.executeQuery("SELECT * FROM reiziger");
+        //Test P2H Hibernate
+        System.out.println("\n\nTest P2H:");
+        ReizigerDAO hibernateDao = new ReizigerDAOHibernate();
+        testReizigerDAO(hibernateDao);
 
-            //Test P1
-            System.out.println("Alle reizigers:");
-            int nummer = 0;
-
-            while(myRs.next()){
-                nummer ++;
-
-                String voorletters = myRs.getString("voorletters");
-                String achternaam = myRs.getString("achternaam");
-                String geboortedatum = myRs.getString("geboortedatum");
-                String tussenvoegsel = (myRs.getString("tussenvoegsel") != null) ? myRs.getString("tussenvoegsel") + " " : "";
-
-                System.out.println("#" + nummer + ": " + voorletters + ". " + tussenvoegsel + achternaam + " (" + geboortedatum + ")");
-
-
-            }
-
-            //Test P2
-            System.out.println("\n\nTest P2:");
-            ReizigerDAO dao = new ReizigerDAOPsql(myConn);
-            testReizigerDAO(dao);
-
-            //Test P2H Hibernate
-            System.out.println("\n\nTest P2H:");
-            ReizigerDAO hibernateDao = new ReizigerDAOHibernate();
-            testReizigerDAO(hibernateDao);
-
-        } catch (SQLException e){
-            e.printStackTrace();
-        }
+        HibernateUtil.shutdown();
     }
 
     /**
@@ -57,7 +31,7 @@ public class Main {
      *
      * @throws SQLException
      */
-    private static void testReizigerDAO(ReizigerDAO rdao) throws SQLException {
+    private static void testReizigerDAO(ReizigerDAO rdao) {
         System.out.println("\n---------- Test ReizigerDAO -------------");
 
         // Haal alle reizigers op uit de database
