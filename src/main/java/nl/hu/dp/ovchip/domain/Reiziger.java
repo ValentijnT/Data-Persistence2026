@@ -2,6 +2,8 @@ package nl.hu.dp.ovchip.domain;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "reiziger")
@@ -25,6 +27,8 @@ public class Reiziger {
 
     @OneToOne(mappedBy = "reiziger", cascade = CascadeType.ALL)
     private Adres adres;
+
+    private List<OVChipkaart> ov_chipkaarten = new ArrayList<>();
     
     public Reiziger() {}
 
@@ -42,6 +46,7 @@ public class Reiziger {
     public String getAchternaam() { return achternaam; }
     public LocalDate getGeboortedatum() { return geboortedatum; }
     public Adres getAdres() { return adres; }
+    public List<OVChipkaart> getOV_chipkaarten() {return ov_chipkaarten;}
 
     public void setReiziger_id(int reiziger_id) { this.reiziger_id = reiziger_id; }
     public void setVoorletters(String voorletters) { this.voorletters = voorletters; }
@@ -50,6 +55,16 @@ public class Reiziger {
     public void setGeboortedatum(LocalDate geboortedatum) { this.geboortedatum = geboortedatum; }
     public void setAdres(Adres adres) { this.adres = adres; }
 
+    public void addOVChipkaart(OVChipkaart ov_chipkaart) {
+        ov_chipkaarten.add(ov_chipkaart);
+        ov_chipkaart.setReiziger(this);
+    }
+
+    public void removeOVChipkaart(OVChipkaart ov_chipkaart) {
+        ov_chipkaarten.remove(ov_chipkaart);
+        ov_chipkaart.setReiziger(null);
+    }
+
     public String getNaam(){
         String tv = (tussenvoegsel != null) ? tussenvoegsel + " " : "";
         return voorletters + ". " + tv + achternaam;
@@ -57,7 +72,19 @@ public class Reiziger {
 
     public String toString() {
         String adresString = (adres != null) ? ", Adres: " + adres : "";
-        return  "Reiziger {#" + reiziger_id + ": " + getNaam() + " (" + geboortedatum + ")" + adresString + "}";
+
+        String ovString = "";
+        if(ov_chipkaarten != null && !ov_chipkaarten.isEmpty()) {
+            ovString = "OVChipkaarten: \n";
+            for (OVChipkaart ov : ov_chipkaarten) {
+                ovString += ov.toString() + ".\n";
+            }
+            ovString = ovString.substring(0, ovString.length() - 2) + ".";
+        } else {
+            ovString = ", OVChipkaarten: []";
+        }
+
+        return  "Reiziger {#" + reiziger_id + ": " + getNaam() + " (" + geboortedatum + ")" + adresString + "}\n" + ovString;
     }
 
 }
