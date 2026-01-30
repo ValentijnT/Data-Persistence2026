@@ -10,5 +10,6 @@ public interface ProductDAO {
     boolean update(Product product);
     boolean delete(Product product);
     List<Product> findByOVChipkaart(OVChipkaart ovChipkaart);
+    Product findById(int id);
     List<Product> findAll();
 }

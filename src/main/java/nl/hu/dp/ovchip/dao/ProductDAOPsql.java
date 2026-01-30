@@ -140,6 +140,11 @@ public class ProductDAOPsql implements ProductDAO {
         return producten;
     }
 
+    @Override
+    public Product findById(int id) {
+        return null;
+    }
+
     public List<Product> findAll() {
         List<Product> producten = new ArrayList<>();
         String sql = "SELECT * FROM product";

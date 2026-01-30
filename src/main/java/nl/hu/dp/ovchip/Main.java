@@ -39,12 +39,15 @@ public class Main {
         r.addOVChipkaart(k1);
         r.addOVChipkaart(k2);
 
+        Product product3 = pdao.findById(3);
+
         Product p1 = new Product(70001, "TestProduct1", "Beschrijving 1", 10.0);
         Product p2 = new Product(70002, "TestProduct2", "Beschrijving 2", 20.0);
 
         k1.addProduct(p1);
         k1.addProduct(p2);
         k2.addProduct(p1);
+        k2.addProduct(product3);
 
         pdao.save(p1);
         pdao.save(p2);
@@ -66,13 +69,20 @@ public class Main {
         rdao.update(rFetched);
         System.out.println("Geüpdatet:\n" + rdao.findById(999));
 
-        System.out.println("\n--- Producten verwijderen ---");
         pdao.delete(p1);
         pdao.delete(p2);
+
+        System.out.println(ovdao.findById(90002));
 
         System.out.println("\n--- Reiziger verwijderen ---");
         rdao.delete(rFetched);
         System.out.println("Bestaat reiziger nog? " + rdao.findById(999));
+
+        System.out.println("Als null dan is OVchipkaart met reiziger verwijderd: ");
+        System.out.println(ovdao.findById(90002));
+
+        System.out.println("Als Product 3 nog bestaat, dan is hij niet mee verwijderd met de reiziger: ");
+        System.out.println(pdao.findById(3));
 
         System.out.println("\n--- Alle producten ---");
         for (Product p : pdao.findAll()) {

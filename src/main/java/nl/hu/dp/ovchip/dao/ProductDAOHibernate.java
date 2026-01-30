@@ -83,6 +83,18 @@ public class ProductDAOHibernate implements ProductDAO {
     }
 
     @Override
+    public Product findById(int id) {
+        try (Session session = sessionFactory.openSession()) {
+            Product p = session.get(Product.class, id);
+
+            if (p != null){
+                p.getOvchipkaarten().size();
+            }
+            return p;
+        }
+    }
+
+    @Override
     public List<Product> findAll() {
         try(Session session = sessionFactory.openSession()) {
             return session.createQuery("FROM Product", Product.class).getResultList();
