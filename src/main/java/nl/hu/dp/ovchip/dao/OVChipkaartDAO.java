@@ -11,5 +11,6 @@ public interface OVChipkaartDAO {
     boolean delete(OVChipkaart ovChipkaart);
 
     List<OVChipkaart> findByReiziger(Reiziger reiziger);
+    OVChipkaart findById(int id);
     List<OVChipkaart> findAll();
 }
