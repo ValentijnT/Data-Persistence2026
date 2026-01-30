@@ -15,8 +15,11 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     private Connection conn;
     private AdresDAO adresDAO;
 
-    public ReizigerDAOPsql(Connection conn, AdresDAO adresDAO) throws SQLException {
+    public ReizigerDAOPsql(Connection conn) throws SQLException {
         this.conn = conn;
+    }
+
+    public void setAdresDAO(AdresDAO adresDAO) throws SQLException {
         this.adresDAO = adresDAO;
     }
 

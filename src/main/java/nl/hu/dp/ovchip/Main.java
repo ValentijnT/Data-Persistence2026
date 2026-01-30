@@ -13,11 +13,15 @@ public class Main {
     public static void main(String[] args) {
 
         try(Connection myConn = DatabaseConnection.getConnection()){
-            AdresDAO adao = new AdresDAOPsql(myConn);
-
             //Test P3
             System.out.println("\n\nTest 3:");
-            ReizigerDAO rdao = new ReizigerDAOPsql(myConn, adao);
+
+            ReizigerDAOPsql rdao = new ReizigerDAOPsql(myConn);
+            AdresDAOPsql adao = new AdresDAOPsql(myConn);
+
+            rdao.setAdresDAO(adao);
+            adao.setReizigerDAO(rdao);
+
             testP3(rdao, adao);
 
         } catch (SQLException e){

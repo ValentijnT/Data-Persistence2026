@@ -13,9 +13,14 @@ import java.util.List;
 public class AdresDAOPsql implements AdresDAO {
 
     private Connection conn;
+    private ReizigerDAOPsql rdao;
 
     public AdresDAOPsql(Connection conn) throws SQLException {
         this.conn = conn;
+    }
+
+    public void setReizigerDAO(ReizigerDAOPsql rdao) {
+        this.rdao = rdao;
     }
 
     @Override
