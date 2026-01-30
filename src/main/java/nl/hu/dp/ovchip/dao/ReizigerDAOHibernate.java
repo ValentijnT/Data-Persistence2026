@@ -8,6 +8,7 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReizigerDAOHibernate implements ReizigerDAO {
@@ -65,7 +66,12 @@ public class ReizigerDAOHibernate implements ReizigerDAO {
     @Override
     public Reiziger findById(int id) {
         try (Session session = sessionFactory.openSession()) {
-            return session.get(Reiziger.class, id);
+            Reiziger reiziger = session.get(Reiziger.class, id);
+
+            if(reiziger != null){
+                reiziger.getOVchipkaarten().size();
+            }
+            return reiziger;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -75,9 +81,14 @@ public class ReizigerDAOHibernate implements ReizigerDAO {
     @Override
     public List<Reiziger> findByGbdatum(LocalDate date) {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM Reiziger r WHERE r.geboortedatum = :date", Reiziger.class)
+            List<Reiziger> reizigers = session.createQuery("FROM Reiziger r WHERE r.geboortedatum = :date", Reiziger.class)
                     .setParameter("date", date)
                     .list();
+
+            for (Reiziger reiziger : reizigers) {
+                reiziger.getOVchipkaarten().size();
+            }
+            return reizigers;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -87,7 +98,11 @@ public class ReizigerDAOHibernate implements ReizigerDAO {
     @Override
     public List<Reiziger> findAll() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM Reiziger", Reiziger.class).list();
+            List<Reiziger> reizigers = session.createQuery("FROM Reiziger", Reiziger.class).list();
+            for (Reiziger reiziger : reizigers) {
+                reiziger.getOVchipkaarten().size();
+            }
+            return reizigers;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
