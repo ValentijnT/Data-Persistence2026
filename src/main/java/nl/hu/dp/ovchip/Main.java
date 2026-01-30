@@ -20,6 +20,8 @@ public class Main {
 
             rdao.setAdresDAO(adao);
             rdao.setOvChipkaartDAO(ovdao);
+            adao.setReizigerDAO(rdao);
+            ovdao.setReizigerDAO(rdao);
 
             //Test P4
             System.out.println("\n\nTest 4:");

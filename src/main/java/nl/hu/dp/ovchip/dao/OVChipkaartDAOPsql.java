@@ -12,10 +12,13 @@ import java.util.List;
 
 public class OVChipkaartDAOPsql implements OVChipkaartDAO{
     private Connection conn;
+    private ReizigerDAO reizigerDAO;
 
     public OVChipkaartDAOPsql(Connection conn) {
         this.conn = conn;
     }
+
+    public void setReizigerDAO(ReizigerDAO reizigerDAO) {this.reizigerDAO = reizigerDAO;}
 
     @Override
     public boolean save(OVChipkaart ov) {
