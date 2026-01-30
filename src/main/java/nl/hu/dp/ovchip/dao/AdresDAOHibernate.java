@@ -2,23 +2,16 @@ package nl.hu.dp.ovchip.dao;
 
 import nl.hu.dp.ovchip.domain.Adres;
 import nl.hu.dp.ovchip.domain.Reiziger;
+import nl.hu.dp.ovchip.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 
 import java.util.List;
 
 public class AdresDAOHibernate implements AdresDAO {
 
-    private final SessionFactory sessionFactory;
-
-    public AdresDAOHibernate() {
-        this.sessionFactory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Adres.class)
-                .buildSessionFactory();
-    }
+    private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
     @Override
     public boolean save(Adres adres) {
@@ -70,37 +63,21 @@ public class AdresDAOHibernate implements AdresDAO {
 
     @Override
     public Adres findByReiziger(Reiziger r) {
-        return null;
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery(
+                    "FROM Adres a WHERE a.reiziger = :r", Adres.class)
+                    .setParameter("r", r)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
     public List<Adres> findAll() {
-        return List.of();
+        try(Session session = sessionFactory.openSession()) {
+            return session.createQuery("FROM Adres", Adres.class).list();
+        }
     }
-
-//    @Override
-//    public List<Reiziger> findByGbdatum(LocalDate date) {
-//        try (Session session = sessionFactory.openSession()) {
-//            return session.createQuery("FROM Reiziger r WHERE r.geboortedatum = :date", Reiziger.class)
-//                    .setParameter("date", date)
-//                    .list();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-
-//    @Override
-//    public List<Reiziger> findAll() {
-//        try (Session session = sessionFactory.openSession()) {
-//            return session.createQuery("FROM Reiziger", Reiziger.class).list();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-//
-//    public void close() {
-//        if (sessionFactory != null) sessionFactory.close();
-//    }
 }

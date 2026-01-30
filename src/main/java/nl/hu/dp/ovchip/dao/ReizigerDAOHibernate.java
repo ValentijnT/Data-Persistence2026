@@ -1,6 +1,7 @@
 package nl.hu.dp.ovchip.dao;
 
 import nl.hu.dp.ovchip.domain.Reiziger;
+import nl.hu.dp.ovchip.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -11,14 +12,7 @@ import java.util.List;
 
 public class ReizigerDAOHibernate implements ReizigerDAO {
 
-    private final SessionFactory sessionFactory;
-
-    public ReizigerDAOHibernate() {
-        this.sessionFactory = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Reiziger.class)
-                .buildSessionFactory();
-    }
+    private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
     @Override
     public boolean save(Reiziger reiziger) {
