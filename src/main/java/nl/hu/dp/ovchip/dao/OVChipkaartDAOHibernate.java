@@ -75,6 +75,10 @@ public class OVChipkaartDAOHibernate implements OVChipkaartDAO {
         }
     }
 
+    public OVChipkaart findById(int id) {
+        return null;
+    }
+
     @Override
     public List<OVChipkaart> findAll() {
         try(Session session = sessionFactory.openSession()) {

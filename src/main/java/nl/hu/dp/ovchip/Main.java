@@ -1,84 +1,97 @@
 package nl.hu.dp.ovchip;
 
 import nl.hu.dp.ovchip.dao.*;
-import nl.hu.dp.ovchip.domain.Adres;
-import nl.hu.dp.ovchip.domain.OVChipkaart;
-import nl.hu.dp.ovchip.domain.Reiziger;
-import nl.hu.dp.ovchip.util.HibernateUtil;
+import nl.hu.dp.ovchip.domain.*;
+import nl.hu.dp.ovchip.util.DatabaseConnection;
 
+import java.sql.Connection;
 import java.time.LocalDate;
 
 public class Main {
+
     public static void main(String[] args) {
 
-        HibernateUtil.getSessionFactory();
+        try (Connection conn = DatabaseConnection.getConnection()) {
 
-        //Test P4H Hibernate
-        System.out.println("\n\nTest P4H:");
-        ReizigerDAOHibernate rdao = new ReizigerDAOHibernate();
-        AdresDAOHibernate adao = new AdresDAOHibernate();
-        OVChipkaartDAOHibernate ovdao = new OVChipkaartDAOHibernate();
+            // DAO’s aanmaken
+            ReizigerDAOPsql rdao = new ReizigerDAOPsql(conn);
+            AdresDAOPsql adao = new AdresDAOPsql(conn);
+            OVChipkaartDAOPsql ovdao = new OVChipkaartDAOPsql(conn);
+            ProductDAOPsql pdao = new ProductDAOPsql(conn);
 
-        testP4H(rdao, adao, ovdao);
+            // DAO’s koppelen
+            rdao.setAdresDAO(adao);
+            rdao.setOvChipkaartDAO(ovdao);
+            adao.setReizigerDAO(rdao);
+            ovdao.setReizigerDAO(rdao);
+            ovdao.setProductDAO(pdao);
+            pdao.setOVChipkaartDAO(ovdao);
 
-        HibernateUtil.shutdown();
-    }
+            System.out.println("\nP5Test starten:");
 
-    private static void testP4H(ReizigerDAOHibernate rdao, AdresDAOHibernate adao, OVChipkaartDAOHibernate ovdao) {
+            //alle reizigers ophalen
+            System.out.println("\n--- Alle reizigers ---");
+            for (Reiziger r : rdao.findAll()) {
+                System.out.println(r);
+            }
 
-        Reiziger reiziger = new Reiziger(6, "V", null, "Tollenaar", LocalDate.of(2003, 9, 26));
-        Adres adres = new Adres(6, "3704AZ", "8", "schipsloot", "zeist", reiziger);
+            // Nieuwe reiziger + adres + kaarten + producten opslaan
+            System.out.println("\n--- Nieuwe reiziger opslaan met alles erop en eraan ---");
 
-        OVChipkaart k1 = new OVChipkaart(12345, LocalDate.of(2027, 1, 1), 2, 25.00, reiziger);
-        OVChipkaart k2 = new OVChipkaart(67890, LocalDate.of(2028, 1, 1), 1, 50.00, reiziger);
+            Reiziger r = new Reiziger(999, "T", "van", "Test", LocalDate.of(2000, 1, 1));
+            Adres a = new Adres(999, "1234AB", "Teststraat", "10", "Zeist", r);
+            r.setAdres(a);
 
-        reiziger.setAdres(adres);
-        reiziger.addOVChipkaart(k1);
-        reiziger.addOVChipkaart(k2);
+            OVChipkaart k1 = new OVChipkaart(90001, LocalDate.now().plusYears(1), 1, 20.0, r);
+            OVChipkaart k2 = new OVChipkaart(90002, LocalDate.now().plusYears(2), 2, 50.0, r);
 
+            Product p1 = new Product(70001, "TestProduct1", "Beschrijving 1", 10.0);
+            Product p2 = new Product(70002, "TestProduct2", "Beschrijving 2", 20.0);
 
-        rdao.save(reiziger);
+            pdao.save(p1);
+            pdao.save(p2);
 
-        System.out.println("opgeslagen reiziger: ");
-        System.out.println(rdao.findById(6));
+            k1.addProduct(p1);
+            k1.addProduct(p2);
+            k2.addProduct(p1);
 
-        //update
-        System.out.println("\nupdate reiziger met ovchipkaarten: ");
-        reiziger.setAchternaam("toltje");
-        k1.setSaldo(99.99);
-        k2.setKlasse(2);
+            r.addOVChipkaart(k1);
+            r.addOVChipkaart(k2);
 
-        rdao.update(reiziger);
+            rdao.save(r);
+            System.out.println("Reiziger opgeslagen: " + r);
 
-        System.out.println("na update reiziger: ");
-        System.out.println(rdao.findById(6));
+            // Ophalen van reiziger 999
+            System.out.println("\n--- Reiziger 999 ophalen ---");
+            Reiziger ophalen = rdao.findById(999);
+            System.out.println(ophalen);
 
-        //findByReiziger
-        System.out.println("\nfindByReiziger");
-        ovdao.findByReiziger(rdao.findById(2)).forEach(System.out::println);
+            // Updaten
+            System.out.println("\n--- Reiziger updaten ---");
+            ophalen.setAchternaam("NieuweNaam");
+            rdao.update(ophalen);
+            System.out.println("Geüpdatet: " + rdao.findById(999));
 
-        //findByGbdatum
-        System.out.println("\nfindByGbdatum");
-        for (Reiziger r : rdao.findByGbdatum(LocalDate.of(2003, 9, 26))){
-            System.out.println(r);
+            // OVChipkaart ophalen
+            System.out.println("\n--- OVChipkaart 90001 ophalen ---");
+            ovdao.findById(90001);
+
+            // Verwijderen
+            System.out.println("\n--- Reiziger verwijderen ---");
+            rdao.delete(ophalen);
+            System.out.println("Bestaat reiziger nog? " + rdao.findById(999));
+
+            pdao.delete(p1);
+            pdao.delete(p2);
+
+            // alle producten ophalen
+            System.out.println("\n--- alle producten ---");
+            for (Product p : pdao.findAll()) {
+                System.out.println(p);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        //rdao findAll
-        System.out.println("\nfindAll rdao");
-        for(Reiziger r : rdao.findAll()){
-            System.out.println(r);
-        }
-
-        //delete
-        System.out.println("\ndelete reiziger en ovchipkaarten: ");
-
-        rdao.delete(reiziger);
-
-        System.out.println("na delete reiziger (moet null aangeven): ");
-        System.out.println(rdao.findById(6));
-
-        //findAll ovchipkaarten
-        System.out.println("\nfindAll() van ovchipkaarten: ");
-        ovdao.findAll().forEach(System.out::println);
     }
 }
