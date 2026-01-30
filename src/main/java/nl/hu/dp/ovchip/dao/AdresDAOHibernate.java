@@ -1,71 +1,73 @@
 package nl.hu.dp.ovchip.dao;
 
+import nl.hu.dp.ovchip.domain.Adres;
 import nl.hu.dp.ovchip.domain.Reiziger;
 import nl.hu.dp.ovchip.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 
-import java.time.LocalDate;
 import java.util.List;
 
-public class ReizigerDAOHibernate implements ReizigerDAO {
+public class AdresDAOHibernate implements AdresDAO {
 
     private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
     @Override
-    public boolean save(Reiziger reiziger) {
+    public boolean save(Adres adres) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
-            session.save(reiziger);
+            session.save(adres);
             tx.commit();
             return true;
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            System.err.println("fout bij save reiziger: " + reiziger);
+            System.err.println("fout bij save adres: " + adres);
             e.printStackTrace();
             return false;
         }
     }
 
     @Override
-    public boolean update(Reiziger reiziger) {
+    public boolean update(Adres adres) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
-            session.update(reiziger);
+            session.update(adres);
             tx.commit();
             return true;
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            System.err.println("fout bij update reiziger: " + reiziger);
+            System.err.println("fout bij update adres: " + adres);
             e.printStackTrace();
             return false;
         }
     }
 
     @Override
-    public boolean delete(Reiziger reiziger) {
+    public boolean delete(Adres adres) {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
-            session.delete(reiziger);
+            session.delete(adres);
             tx.commit();
             return true;
         } catch (Exception e) {
             if (tx != null) tx.rollback();
-            System.err.println("fout bij delete reiziger: " + reiziger);
+            System.err.println("fout bij delete adres: " + adres);
             e.printStackTrace();
             return false;
         }
     }
 
     @Override
-    public Reiziger findById(int id) {
+    public Adres findByReiziger(Reiziger r) {
         try (Session session = sessionFactory.openSession()) {
-            return session.get(Reiziger.class, id);
+            return session.createQuery(
+                    "FROM Adres a WHERE a.reiziger = :r", Adres.class)
+                    .setParameter("r", r)
+                    .uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -73,28 +75,9 @@ public class ReizigerDAOHibernate implements ReizigerDAO {
     }
 
     @Override
-    public List<Reiziger> findByGbdatum(LocalDate date) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM Reiziger r WHERE r.geboortedatum = :date", Reiziger.class)
-                    .setParameter("date", date)
-                    .list();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+    public List<Adres> findAll() {
+        try(Session session = sessionFactory.openSession()) {
+            return session.createQuery("FROM Adres", Adres.class).list();
         }
-    }
-
-    @Override
-    public List<Reiziger> findAll() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM Reiziger", Reiziger.class).list();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public void close() {
-        if (sessionFactory != null) sessionFactory.close();
     }
 }

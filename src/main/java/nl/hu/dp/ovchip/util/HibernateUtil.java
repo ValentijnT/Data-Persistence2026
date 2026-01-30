@@ -1,5 +1,7 @@
 package nl.hu.dp.ovchip.util;
 
+import nl.hu.dp.ovchip.domain.Adres;
+import nl.hu.dp.ovchip.domain.Reiziger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -9,9 +11,12 @@ public class HibernateUtil {
 
     private static SessionFactory buildSessionFactory() {
         try{
-            return new Configuration().configure().buildSessionFactory();
-        } catch (Throwable ex) {
-            System.err.println("Initial SessionFactory creation failed." + ex);
+            return new Configuration()
+                    .configure("hibernate.cfg.xml")
+                    .addAnnotatedClass(Reiziger.class)
+                    .addAnnotatedClass(Adres.class)
+                    .buildSessionFactory();
+        } catch(Throwable ex){
             throw new ExceptionInInitializerError(ex);
         }
     }
@@ -19,4 +24,9 @@ public class HibernateUtil {
     public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }
+
+    public static void shutdown() {
+        getSessionFactory().close();
+    }
 }
+

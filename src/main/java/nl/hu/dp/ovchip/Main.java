@@ -3,85 +3,66 @@ package nl.hu.dp.ovchip;
 import nl.hu.dp.ovchip.dao.*;
 import nl.hu.dp.ovchip.domain.Adres;
 import nl.hu.dp.ovchip.domain.Reiziger;
-import nl.hu.dp.ovchip.util.DatabaseConnection;
+import nl.hu.dp.ovchip.util.HibernateUtil;
 
-import java.sql.*;
 import java.time.LocalDate;
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
 
-        try(Connection myConn = DatabaseConnection.getConnection()){
-            AdresDAO adao = new AdresDAOPsql(myConn);
+        HibernateUtil.getSessionFactory();
 
-            //Test P3
-            System.out.println("\n\nTest 3:");
-            ReizigerDAO rdao = new ReizigerDAOPsql(myConn, adao);
-            testP3(rdao, adao);
+        //Test P2H Hibernate
+        System.out.println("\n\nTest P3H:");
+        ReizigerDAOHibernate rdao = new ReizigerDAOHibernate();
+        AdresDAOHibernate adao = new AdresDAOHibernate();
+        testP3H(rdao, adao);
 
-        } catch (SQLException e){
-            e.printStackTrace();
-        }
+        HibernateUtil.shutdown();
     }
 
-    private static void testP3(ReizigerDAO rdao, AdresDAO adao) throws SQLException {
-        //Haal alle reizigers + adressen op
-        List<Reiziger> reizigers = rdao.findAll();
-        System.out.println("ReizigerDAO.findAll() geeft:");
-        for (Reiziger r : reizigers) {
-            System.out.println(r);
-        }
+    private static void testP3H(ReizigerDAOHibernate rdao, AdresDAOHibernate adao) {
+        //save
+        System.out.println("Test save adres + Reiziger: \n");
+        Reiziger valentijn = new Reiziger(67, "V", null, "Tollenaar", LocalDate.of(2003, 9, 26));
+        Adres adres = new Adres(67, "3704AZ", "8", "heidelberglaan", "Utrecht", valentijn);
 
-        //Haal alle adressen op
-        List<Adres> adressen = adao.findAll();
-        System.out.println("\nAdresDAO.findAll() geeft:");
-        for (Adres a : adressen) {
+        adres.setReiziger(valentijn);
+        valentijn.setAdres(adres);
+
+        rdao.save(valentijn);
+
+        System.out.println("\nNieuwe reiziger in database: ");
+        System.out.println(rdao.findById(67));
+
+        //update
+        System.out.println("\nNieuwe reiziger en adres updaten in database: ");
+        adres.setHuisnummer("10B");
+        valentijn.setAchternaam("toltje");
+        rdao.update(valentijn);
+
+        System.out.println("\nReiziger na update in de database: ");
+        System.out.println(rdao.findById(67));
+
+        //findByReiziger
+        System.out.println("\nfindByReiziger geeft: ");
+        System.out.println(adao.findByReiziger(valentijn));
+
+        //delete
+        System.out.println("\nNieuwe reiziger in database verwijderen: ");
+
+        rdao.delete(valentijn);
+        System.out.println("Valentijn uit db verwijderd: " + rdao.findById(67));
+
+        System.out.println("\nAlle adress: ");
+        for (Adres a : adao.findAll()) {
             System.out.println(a);
         }
 
-        //Nieuwe reiziger + nieuw adres koppelen
-        Reiziger valentijn = new Reiziger(77, "V", null, "Tol", LocalDate.of(2003,9,26));
-        System.out.println("\nReiziger valentijn geeft: " +  valentijn);
-        Adres valentijnAdres = new Adres(77, "3704AZ", "13", "Harmonielaan", "Zeist", null);
-        System.out.println("Adres geeft zonder koppeling: " + valentijnAdres);
-        valentijn.setAdres(valentijnAdres);
-        valentijnAdres.setReiziger(valentijn);
-
-        System.out.println("\nTest opslaan reiziger + adres:");
-        rdao.save(valentijn);
-
-        System.out.println("Reiziger na save: " + rdao.findById(77));
-        System.out.println("Adres na save: " + adao.findByReiziger(valentijn));
-        System.out.println();
-
-        //update van reiziger en adres
-        System.out.println("\nTest update reiziger + adres");
-        valentijn.setAchternaam("Tollenaar");
-        valentijn.getAdres().setStraat("Laan van Vollenhove");
-
-        rdao.update(valentijn);
-
-        System.out.println("Reiziger na update: " + rdao.findById(77));
-        System.out.println("Adres na update: " + adao.findByReiziger(valentijn));
-
-        //delete van reiziger en adres
-        System.out.println("\nTest delete reiziger + adres");
-        rdao.delete(valentijn);
-
-        System.out.println("Reiziger na delete: " + rdao.findById(77));
-        System.out.println("Adres na delete: " + adao.findByReiziger(valentijn));
-        System.out.println();
-
-        //findbyReiziger na delete
-        System.out.println("ReizigerDAO.findAll() na delete geeft:");
-        for (Reiziger r : reizigers) {
+        System.out.println("\nAlle reizigers en adressen: ");
+        for (Reiziger r : rdao.findAll()) {
             System.out.println(r);
         }
-
-        //findByGbdatum
-        String gbdatumFind = rdao.findByGbdatum(LocalDate.of(2002, 9, 17)).toString();
-        System.out.println("\nfindByGbdatum geeft: " + gbdatumFind);
 
 
     }
