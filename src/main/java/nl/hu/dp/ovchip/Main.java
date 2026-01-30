@@ -2,9 +2,7 @@ package nl.hu.dp.ovchip;
 
 import nl.hu.dp.ovchip.dao.ReizigerDAO;
 import nl.hu.dp.ovchip.dao.ReizigerDAOHibernate;
-import nl.hu.dp.ovchip.dao.ReizigerDAOPsql;
 import nl.hu.dp.ovchip.domain.Reiziger;
-import nl.hu.dp.ovchip.util.DatabaseConnection;
 import nl.hu.dp.ovchip.util.HibernateUtil;
 
 import java.sql.*;
@@ -18,7 +16,7 @@ public class Main {
 
         //Test P2H Hibernate
         System.out.println("\n\nTest P2H:");
-        ReizigerDAO hibernateDao = new ReizigerDAOHibernate();
+        ReizigerDAOHibernate hibernateDao = new ReizigerDAOHibernate();
         testReizigerDAO(hibernateDao);
 
         HibernateUtil.shutdown();
