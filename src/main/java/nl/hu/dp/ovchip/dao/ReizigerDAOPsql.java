@@ -46,7 +46,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             }
 
             if (reizigerSaved && ovChipkaartDAO != null){
-                for (OVChipkaart ov : r.getOV_chipkaarten()){
+                for (OVChipkaart ov : r.getOVchipkaarten()){
                     ovChipkaartDAO.save(ov);
                 }
             }
@@ -80,7 +80,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             }
 
             if (ovChipkaartDAO != null) {
-                for (OVChipkaart ov : r.getOV_chipkaarten()) {
+                for (OVChipkaart ov : r.getOVchipkaarten()) {
                     ovChipkaartDAO.update(ov);
                 }
             }
@@ -100,7 +100,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             adresDAO.delete(adres);
         }
 
-        if (r.getOV_chipkaarten() != null) {
+        if (r.getOVchipkaarten() != null) {
             for (OVChipkaart ov : ovChipkaartDAO.findByReiziger(r)) {
                 ovChipkaartDAO.delete(ov);
             }
@@ -136,7 +136,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 r.setAdres(adres);
 
                 if (ovChipkaartDAO != null) {
-                    r.getOV_chipkaarten().addAll(ovChipkaartDAO.findByReiziger(r));
+                    r.getOVchipkaarten().addAll(ovChipkaartDAO.findByReiziger(r));
                 }
                 return r;
             }
@@ -165,7 +165,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 r.setAdres(adres);
 
                 if (ovChipkaartDAO != null) {
-                    r.getOV_chipkaarten().addAll(ovChipkaartDAO.findByReiziger(r));
+                    r.getOVchipkaarten().addAll(ovChipkaartDAO.findByReiziger(r));
                 }
 
                 reizigers.add(r);
@@ -195,7 +195,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 r.setAdres(adres);
 
                 if (ovChipkaartDAO != null) {
-                    r.getOV_chipkaarten().addAll(ovChipkaartDAO.findByReiziger(r));
+                    r.getOVchipkaarten().addAll(ovChipkaartDAO.findByReiziger(r));
                 }
 
                 reizigers.add(r);

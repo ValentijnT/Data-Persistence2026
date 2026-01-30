@@ -28,8 +28,9 @@ public class Reiziger {
     @OneToOne(mappedBy = "reiziger", cascade = CascadeType.ALL)
     private Adres adres;
 
+    @OneToMany(mappedBy = "reiziger", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OVChipkaart> ov_chipkaarten = new ArrayList<>();
-    
+
     public Reiziger() {}
 
     public Reiziger(int reiziger_id, String voorletters, String tussenvoegsel, String achternaam, LocalDate geboortedatum) {
@@ -46,7 +47,7 @@ public class Reiziger {
     public String getAchternaam() { return achternaam; }
     public LocalDate getGeboortedatum() { return geboortedatum; }
     public Adres getAdres() { return adres; }
-    public List<OVChipkaart> getOV_chipkaarten() {return ov_chipkaarten;}
+    public List<OVChipkaart> getOVchipkaarten() {return ov_chipkaarten;}
 
     public void setReiziger_id(int reiziger_id) { this.reiziger_id = reiziger_id; }
     public void setVoorletters(String voorletters) { this.voorletters = voorletters; }
@@ -71,20 +72,33 @@ public class Reiziger {
     }
 
     public String toString() {
-        String adresString = (adres != null) ? ", Adres: " + adres : "";
+        StringBuilder sb = new StringBuilder();
 
-        String ovString = "";
-        if(ov_chipkaarten != null && !ov_chipkaarten.isEmpty()) {
-            ovString = "OVChipkaarten: \n";
-            for (OVChipkaart ov : ov_chipkaarten) {
-                ovString += ov.toString() + ".\n";
-            }
-            ovString = ovString.substring(0, ovString.length() - 2) + ".";
+        sb.append("Reiziger {#" + reiziger_id)
+                .append(": ").append(getNaam())
+                .append(" (")
+                .append(geboortedatum)
+                .append(")");
+
+        //adres
+        if (adres != null) {
+            sb.append(", Adres: ").append(adres);
         } else {
-            ovString = ", OVChipkaarten: []";
+            sb.append(", Adres: null");
         }
 
-        return  "Reiziger {#" + reiziger_id + ": " + getNaam() + " (" + geboortedatum + ")" + adresString + "}\n" + ovString;
-    }
+        sb.append("}\n");
 
+        //ovchipkaarten
+        if (ov_chipkaarten != null && !ov_chipkaarten.isEmpty()) {
+            sb.append("OVChipkaarten:\n");
+            for (OVChipkaart ov : ov_chipkaarten) {
+                sb.append(ov.toString()).append("\n");
+            }
+        } else {
+            sb.append("OVChipkaarten: Geen\n");
+        }
+
+        return sb.toString();
+    }
 }
