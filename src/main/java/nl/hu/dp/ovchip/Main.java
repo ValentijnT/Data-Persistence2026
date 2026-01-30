@@ -2,68 +2,80 @@ package nl.hu.dp.ovchip;
 
 import nl.hu.dp.ovchip.dao.*;
 import nl.hu.dp.ovchip.domain.Adres;
+import nl.hu.dp.ovchip.domain.OVChipkaart;
 import nl.hu.dp.ovchip.domain.Reiziger;
-import nl.hu.dp.ovchip.util.HibernateUtil;
+import nl.hu.dp.ovchip.util.DatabaseConnection;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
 
-        HibernateUtil.getSessionFactory();
+        try(Connection myConn = DatabaseConnection.getConnection()){
+            AdresDAOPsql adao = new AdresDAOPsql(myConn);
+            OVChipkaartDAOPsql ovdao = new OVChipkaartDAOPsql(myConn);
+            ReizigerDAOPsql rdao = new ReizigerDAOPsql(myConn);
 
-        //Test P2H Hibernate
-        System.out.println("\n\nTest P3H:");
-        ReizigerDAOHibernate rdao = new ReizigerDAOHibernate();
-        AdresDAOHibernate adao = new AdresDAOHibernate();
-        testP3H(rdao, adao);
+            rdao.setAdresDAO(adao);
+            rdao.setOvChipkaartDAO(ovdao);
 
-        HibernateUtil.shutdown();
+            //Test P4
+            System.out.println("\n\nTest 4:");
+
+            testP4(rdao, ovdao);
+
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 
-    private static void testP3H(ReizigerDAOHibernate rdao, AdresDAOHibernate adao) {
+    private static void testP4(ReizigerDAO rdao, OVChipkaartDAO ovdao) {
         //save
-        System.out.println("Test save adres + Reiziger: \n");
-        Reiziger valentijn = new Reiziger(67, "V", null, "Tollenaar", LocalDate.of(2003, 9, 26));
-        Adres adres = new Adres(67, "3704AZ", "8", "heidelberglaan", "Utrecht", valentijn);
+        System.out.println("\nSave reiziger met ovchipkaarten: ");
+        Reiziger reiziger = new Reiziger(6, "V", null, "Tollenaar", LocalDate.of(2003, 9, 26));
 
-        adres.setReiziger(valentijn);
-        valentijn.setAdres(adres);
+        Adres adres = new Adres(6, "3704AZ", "8", "schipsloot", "zeist", reiziger);
 
-        rdao.save(valentijn);
+        OVChipkaart k1 = new OVChipkaart(12345, LocalDate.of(2027, 1, 1), 2, 25.00, reiziger);
+        OVChipkaart k2 = new OVChipkaart(67890, LocalDate.of(2028, 1, 1), 1, 50.00, reiziger);
 
-        System.out.println("\nNieuwe reiziger in database: ");
-        System.out.println(rdao.findById(67));
+        reiziger.setAdres(adres);
+
+        reiziger.addOVChipkaart(k1);
+        reiziger.addOVChipkaart(k2);
+
+        rdao.save(reiziger);
+
+        System.out.println("opgeslagen reiziger: ");
+        System.out.println(rdao.findById(6));
 
         //update
-        System.out.println("\nNieuwe reiziger en adres updaten in database: ");
-        adres.setHuisnummer("10B");
-        valentijn.setAchternaam("toltje");
-        rdao.update(valentijn);
+        System.out.println("\nupdate reiziger met ovchipkaarten: ");
+        reiziger.setAchternaam("toltje");
+        k1.setSaldo(99.99);
+        k2.setKlasse(2);
 
-        System.out.println("\nReiziger na update in de database: ");
-        System.out.println(rdao.findById(67));
+        rdao.update(reiziger);
+
+        System.out.println("na update reiziger: ");
+        System.out.println(rdao.findById(6));
 
         //findByReiziger
-        System.out.println("\nfindByReiziger geeft: ");
-        System.out.println(adao.findByReiziger(valentijn));
+        System.out.println("\nfindByReiziger");
+        ovdao.findByReiziger(rdao.findById(2)).forEach(System.out::println);
 
         //delete
-        System.out.println("\nNieuwe reiziger in database verwijderen: ");
+        System.out.println("\ndelete reiziger en ovchipkaarten: ");
 
-        rdao.delete(valentijn);
-        System.out.println("Valentijn uit db verwijderd: " + rdao.findById(67));
+        rdao.delete(reiziger);
 
-        System.out.println("\nAlle adress: ");
-        for (Adres a : adao.findAll()) {
-            System.out.println(a);
-        }
+        System.out.println("na delete reiziger (moet null aangeven): ");
+        System.out.println(rdao.findById(6));
 
-        System.out.println("\nAlle reizigers en adressen: ");
-        for (Reiziger r : rdao.findAll()) {
-            System.out.println(r);
-        }
-
-
+        //findAll ovchipkaarten
+        System.out.println("\nfindAll() van ovchipkaarten: ");
+        ovdao.findAll().forEach(System.out::println);
     }
 }

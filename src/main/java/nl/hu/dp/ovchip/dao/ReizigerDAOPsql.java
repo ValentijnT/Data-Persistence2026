@@ -1,6 +1,7 @@
 package nl.hu.dp.ovchip.dao;
 
 import nl.hu.dp.ovchip.domain.Adres;
+import nl.hu.dp.ovchip.domain.OVChipkaart;
 import nl.hu.dp.ovchip.domain.Reiziger;
 
 import java.sql.Connection;
@@ -14,10 +15,18 @@ import java.util.List;
 public class ReizigerDAOPsql implements ReizigerDAO {
     private Connection conn;
     private AdresDAO adresDAO;
+    private OVChipkaartDAO ovChipkaartDAO;
 
-    public ReizigerDAOPsql(Connection conn, AdresDAO adresDAO) throws SQLException {
+    public ReizigerDAOPsql(Connection conn) throws SQLException {
         this.conn = conn;
+    }
+
+    public void setAdresDAO(AdresDAO adresDAO) {
         this.adresDAO = adresDAO;
+    }
+
+    public void setOvChipkaartDAO(OVChipkaartDAO ovChipkaartDAO) {
+        this.ovChipkaartDAO = ovChipkaartDAO;
     }
 
     @Override
@@ -34,6 +43,12 @@ public class ReizigerDAOPsql implements ReizigerDAO {
 
             if (reizigerSaved && r.getAdres() != null) {
                 adresDAO.save(r.getAdres());
+            }
+
+            if (reizigerSaved && ovChipkaartDAO != null){
+                for (OVChipkaart ov : r.getOV_chipkaarten()){
+                    ovChipkaartDAO.save(ov);
+                }
             }
 
             return reizigerSaved;
@@ -64,6 +79,12 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 }
             }
 
+            if (ovChipkaartDAO != null) {
+                for (OVChipkaart ov : r.getOV_chipkaarten()) {
+                    ovChipkaartDAO.update(ov);
+                }
+            }
+
             return updatedReiziger;
 
         } catch (SQLException e) {
@@ -77,6 +98,12 @@ public class ReizigerDAOPsql implements ReizigerDAO {
         Adres adres = adresDAO.findByReiziger(r);
         if (adres != null) {
             adresDAO.delete(adres);
+        }
+
+        if (r.getOV_chipkaarten() != null) {
+            for (OVChipkaart ov : ovChipkaartDAO.findByReiziger(r)) {
+                ovChipkaartDAO.delete(ov);
+            }
         }
 
         String sql = "DELETE FROM reiziger WHERE reiziger_id = ?";
@@ -107,6 +134,10 @@ public class ReizigerDAOPsql implements ReizigerDAO {
 
                 Adres adres = adresDAO.findByReiziger(r);
                 r.setAdres(adres);
+
+                if (ovChipkaartDAO != null) {
+                    r.getOV_chipkaarten().addAll(ovChipkaartDAO.findByReiziger(r));
+                }
                 return r;
             }
         } catch (SQLException e) {
@@ -133,6 +164,10 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 Adres adres = adresDAO.findByReiziger(r);
                 r.setAdres(adres);
 
+                if (ovChipkaartDAO != null) {
+                    r.getOV_chipkaarten().addAll(ovChipkaartDAO.findByReiziger(r));
+                }
+
                 reizigers.add(r);
             }
         } catch (SQLException e) {
@@ -158,6 +193,10 @@ public class ReizigerDAOPsql implements ReizigerDAO {
 
                 Adres adres = adresDAO.findByReiziger(r);
                 r.setAdres(adres);
+
+                if (ovChipkaartDAO != null) {
+                    r.getOV_chipkaarten().addAll(ovChipkaartDAO.findByReiziger(r));
+                }
 
                 reizigers.add(r);
             }
