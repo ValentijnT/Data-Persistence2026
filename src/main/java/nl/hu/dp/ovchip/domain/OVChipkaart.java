@@ -26,6 +26,11 @@ public class OVChipkaart {
     @JoinColumn(name = "reiziger_id")
     private Reiziger reiziger;
 
+    @ManyToMany
+    @JoinTable(name = "ov_chipkaart_product",
+                joinColumns = @JoinColumn(name = "kaart_nummer"),
+                inverseJoinColumns = @JoinColumn(name = "product_nummer")
+    )
     private List<Product> producten = new ArrayList<>();
 
     public OVChipkaart() {}
@@ -56,7 +61,9 @@ public class OVChipkaart {
     public void addProduct(Product product) {
         if(!producten.contains(product)){
             producten.add(product);
-            product.addOVChipkaart(this);
+        }
+        if (!product.getOvchipkaarten().contains(this)) {
+            product.getOvchipkaarten().add(this);
         }
     }
 

@@ -1,13 +1,27 @@
 package nl.hu.dp.ovchip.domain;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "product")
 public class Product {
+
+    @Id
+    @Column(name = "product_nummer")
     private int product_nummer;
+
+    @Column(name = "naam")
     private String naam;
+
+    @Column(name = "beschrijving")
     private String beschrijving;
+
+    @Column(name = "prijs")
     private double prijs;
+
+    @ManyToMany(mappedBy = "producten")
     private List<OVChipkaart> ovchipkaarten = new ArrayList<>();
 
     public Product() {}
@@ -35,10 +49,14 @@ public class Product {
         if (!ovchipkaarten.contains(ov)) {
             ovchipkaarten.add(ov);
         }
+        if (!ov.getProducten().contains(this)) {
+            ov.getProducten().add(this);
+        }
     }
 
     public void removeOVChipkaart(OVChipkaart ov) {
         ovchipkaarten.remove(ov);
+        ov.getProducten().remove(this);
     }
 
     public String toString(){

@@ -2,6 +2,7 @@ package nl.hu.dp.ovchip.util;
 
 import nl.hu.dp.ovchip.domain.Adres;
 import nl.hu.dp.ovchip.domain.OVChipkaart;
+import nl.hu.dp.ovchip.domain.Product;
 import nl.hu.dp.ovchip.domain.Reiziger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -17,6 +18,7 @@ public class HibernateUtil {
                     .addAnnotatedClass(Reiziger.class)
                     .addAnnotatedClass(Adres.class)
                     .addAnnotatedClass(OVChipkaart.class)
+                    .addAnnotatedClass(Product.class)
                     .buildSessionFactory();
         } catch(Throwable ex){
             throw new ExceptionInInitializerError(ex);

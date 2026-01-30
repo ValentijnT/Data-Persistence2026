@@ -2,12 +2,14 @@ package nl.hu.dp.ovchip.dao;
 
 import nl.hu.dp.ovchip.domain.Adres;
 import nl.hu.dp.ovchip.domain.OVChipkaart;
+import nl.hu.dp.ovchip.domain.Product;
 import nl.hu.dp.ovchip.domain.Reiziger;
 import nl.hu.dp.ovchip.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OVChipkaartDAOHibernate implements OVChipkaartDAO {
@@ -20,6 +22,12 @@ public class OVChipkaartDAOHibernate implements OVChipkaartDAO {
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
             session.save(ov);
+
+            for (Product p : ov.getProducten()) {
+                p.addOVChipkaart(ov);
+                session.saveOrUpdate(p);
+            }
+
             tx.commit();
             return true;
         } catch (Exception e) {
@@ -35,7 +43,24 @@ public class OVChipkaartDAOHibernate implements OVChipkaartDAO {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
-            session.update(ov);
+
+            OVChipkaart managed = (OVChipkaart) session.merge(ov);
+
+            for(Product p : new ArrayList<>(managed.getProducten())) {
+                if(!ov.getProducten().contains(p)) {
+                    p.removeOVChipkaart(managed);
+                    session.saveOrUpdate(p);
+                }
+            }
+
+            for (Product p : ov.getProducten()) {
+                if(!managed.getProducten().contains(p)) {
+                    p.addOVChipkaart(managed);
+                    session.saveOrUpdate(p);
+                }
+            }
+
+            session.update(managed);
             tx.commit();
             return true;
         } catch (Exception e) {
@@ -51,7 +76,15 @@ public class OVChipkaartDAOHibernate implements OVChipkaartDAO {
         Transaction tx = null;
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
-            session.delete(ov);
+
+            OVChipkaart managed = (OVChipkaart) session.merge(ov);
+
+            for(Product p : new ArrayList<>(managed.getProducten())) {
+                p.removeOVChipkaart(ov);
+                session.saveOrUpdate(p);
+            }
+
+            session.delete(managed);
             tx.commit();
             return true;
         } catch (Exception e) {
@@ -76,13 +109,31 @@ public class OVChipkaartDAOHibernate implements OVChipkaartDAO {
     }
 
     public OVChipkaart findById(int id) {
-        return null;
+        try(Session session = sessionFactory.openSession()) {
+            OVChipkaart ov = session.get(OVChipkaart.class, id);
+
+            if(ov != null) {
+                ov.getProducten().size();
+            }
+
+            return ov;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     @Override
     public List<OVChipkaart> findAll() {
         try(Session session = sessionFactory.openSession()) {
-            return session.createQuery("FROM OVChipkaart", OVChipkaart.class).list();
+            List<OVChipkaart> kaarten =
+                    session.createQuery("FROM OVChipkaart", OVChipkaart.class).getResultList();
+
+            for(OVChipkaart ov : kaarten) {
+                ov.getProducten().size();
+            }
+            return kaarten;
         }
     }
 }

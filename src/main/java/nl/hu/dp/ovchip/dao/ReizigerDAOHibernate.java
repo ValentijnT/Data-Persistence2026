@@ -1,5 +1,6 @@
 package nl.hu.dp.ovchip.dao;
 
+import nl.hu.dp.ovchip.domain.OVChipkaart;
 import nl.hu.dp.ovchip.domain.Reiziger;
 import nl.hu.dp.ovchip.util.HibernateUtil;
 import org.hibernate.Session;
@@ -70,6 +71,9 @@ public class ReizigerDAOHibernate implements ReizigerDAO {
 
             if(reiziger != null){
                 reiziger.getOVchipkaarten().size();
+                for (OVChipkaart ov : reiziger.getOVchipkaarten()) {
+                    ov.getProducten().size();
+                }
             }
             return reiziger;
         } catch (Exception e) {
