@@ -55,7 +55,7 @@ public class Main {
         //update bestaande reiziger
         sietske.setAchternaam("Zusters");
         rdao.update(sietske);
-        System.out.println("reiziger na update achternaam: \n" + rdao.findById(77));
+        System.out.println("reiziger na update achternaam:  \n" + rdao.findById(77));
 
         //findByGbdatum testen
         System.out.println("\nReizigers die op 1981-03-14 geboren zijn:");
